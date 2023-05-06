@@ -54,7 +54,8 @@ class Products with ChangeNotifier {
     final url = Uri.parse(
         'https://fir-app-e73d5-default-rtdb.firebaseio.com/products.json');
 
-    http.post(
+    http
+        .post(
       url,
       body: jsonEncode(
         {
@@ -65,17 +66,20 @@ class Products with ChangeNotifier {
           'isFavorite': product.isFavorite,
         },
       ),
-    );
-
-    final newProduct = Product(
-      id: UniqueKey().toString(),
-      title: product.title,
-      description: product.description,
-      price: product.price,
-      imageUrl: product.imageUrl,
-    );
-    _list.insert(0, newProduct);
-    notifyListeners();
+    )
+        .then((response) {
+      print(response.body);
+      final name = (jsonDecode(response.body) as Map<String, dynamic>)['name'];   
+      final newProduct = Product(
+        id: name,
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        imageUrl: product.imageUrl,
+      );
+      _list.insert(0, newProduct);
+      notifyListeners();
+    });
   }
 
   void updateProduct(Product updatedProduct) {
