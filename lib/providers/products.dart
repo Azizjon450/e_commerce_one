@@ -80,6 +80,8 @@ class Products with ChangeNotifier {
       //_list.insert(0, newProduct);
       _list.add(newProduct);
       notifyListeners();
+    }).catchError((error) {
+      throw error;
     });
   }
 

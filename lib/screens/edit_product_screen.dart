@@ -133,7 +133,24 @@ class _EditProductScreenState extends State<EditProductScreen> {
       if (_product.id.isEmpty) {
         Provider.of<Products>(context, listen: false)
             .addProduct(_product)
-            .then((_) {
+            .catchError((error) {
+          return showDialog<Null>(
+              context: context,
+              builder: (ctx) {
+                return AlertDialog(
+                  title: Text("Xatolik!"),
+                  content: const Text("Maxsulot qo'shishda xatolik yuz berdi!"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: const Text(
+                        "Okay",
+                      ),
+                    ),
+                  ],
+                );
+              });
+        }).then((_) {
           setState(() {
             _isLoading = true;
           });
