@@ -46,12 +46,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _init = false;
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    //_priceFocus.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   // TODO: implement dispose
+  //   super.dispose();
+  //   //_priceFocus.dispose();
+  // }
 
   void _showInputDialog(BuildContext context) {
     showDialog(
@@ -112,9 +112,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     final isValid = _imageForm.currentState!.validate();
     if (isValid && _hasImage) {
       _imageForm.currentState!.save();
-      setState(() {
-        _hasImage = true;
-      });
+      //_isLoading = true;
       Navigator.of(context).pop();
     }
   }
@@ -127,15 +125,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
     });
     if (isValid) {
       _form.currentState!.save();
-      setState(() {
-        _isLoading = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = true;
+        });
+      }
       if (_product.id.isEmpty) {
         Provider.of<Products>(context, listen: false)
             .addProduct(_product)
-            .then((response) {
+            .then((_) {
           setState(() {
-            _isLoading = false; 
+            _isLoading = true;
           });
           Navigator.of(context).pop();
         });
@@ -144,8 +144,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
         setState(() {
           _isLoading = true;
         });
+        Navigator.of(context).pop();
       }
-      Navigator.of(context).pop();
     }
   }
 
@@ -165,7 +165,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       ),
       body: _isLoading
           ? const Center(
-            child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(),
               //child: CircularProgressIndicator(),
             )
           : GestureDetector(
