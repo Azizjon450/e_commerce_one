@@ -117,7 +117,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     FocusScope.of(context).unfocus();
     final isValid = _form.currentState!.validate();
     setState(() {
@@ -131,31 +131,34 @@ class _EditProductScreenState extends State<EditProductScreen> {
         });
       }
       if (_product.id.isEmpty) {
-        Provider.of<Products>(context, listen: false)
-            .addProduct(_product)
-            .catchError((error) {
-          return showDialog<Null>(
-              context: context,
-              builder: (ctx) {
-                return AlertDialog(
-                  title: Text("Xatolik!"),
-                  content: const Text("Maxsulot qo'shishda xatolik yuz berdi!"),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      child: const Text(
-                        "Okay",
-                      ),
+        try {
+          await Provider.of<Products>(context, listen: false)
+              .addProduct(_product);
+        } catch (error) {
+          print(error);
+          await showDialog<Null>(
+            context: context,
+            builder: (ctx) {
+              return AlertDialog(
+                title: Text("Xatolik!"),
+                content: const Text("Maxsulot qo'shishda xatolik yuz berdi!"),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text(
+                      "Okay",
                     ),
-                  ],
-                );
-              });
-        }).then((_) {
+                  ),
+                ],
+              );
+            },
+          );
+        } finally {
           setState(() {
-            _isLoading = true;
+            _isLoading = false;
           });
           Navigator.of(context).pop();
-        });
+        }
       } else {
         Provider.of<Products>(context, listen: false).updateProduct(_product);
         setState(() {

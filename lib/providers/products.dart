@@ -50,26 +50,25 @@ class Products with ChangeNotifier {
     return _list.where((product) => product.isFavorite).toList();
   }
 
-  Future<void> addProduct(Product product) {
+  Future<void> addProduct(Product product) async {
     final url = Uri.parse(
         'https://fir-app-e73d5-default-rtdb.firebaseio.com/products.json');
 
-    return http
-        .post(
-      url,
-      body: jsonEncode(
-        {
-          'title': product.title,
-          'description': product.description,
-          'price': product.price,
-          'imageUrl': product.imageUrl,
-          'isFavorite': product.isFavorite,
-        },
-      ),
-    )
-        .then((response) {
-      print(response.body);
-      final name = (jsonDecode(response.body) as Map<String, dynamic>)['name'];   
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(
+          {
+            'title': product.title,
+            'description': product.description,
+            'price': product.price,
+            'imageUrl': product.imageUrl,
+            'isFavorite': product.isFavorite,
+          },
+        ),
+      );
+
+      final name = (jsonDecode(response.body) as Map<String, dynamic>)['name'];
       final newProduct = Product(
         id: name,
         title: product.title,
@@ -80,9 +79,9 @@ class Products with ChangeNotifier {
       //_list.insert(0, newProduct);
       _list.add(newProduct);
       notifyListeners();
-    }).catchError((error) {
-      throw error;
-    });
+    } catch (error) {
+      rethrow;
+    }
   }
 
   void updateProduct(Product updatedProduct) {
