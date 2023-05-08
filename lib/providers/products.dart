@@ -117,12 +117,29 @@ class Products with ChangeNotifier {
     }
   }
 
-  void updateProduct(Product updatedProduct) {
+  Future<void> updateProduct(Product updatedProduct) async {
     final productIndex =
         _list.indexWhere((product) => product.id == updatedProduct.id);
     if (productIndex >= 0) {
-      _list[productIndex] = updatedProduct;
-      notifyListeners();
+      final url = Uri.parse(
+          'https://fir-app-e73d5-default-rtdb.firebaseio.com/products/${updatedProduct.id}.json');
+      try {
+        await http.patch(
+          url,
+          body: jsonEncode(
+            {
+              'title': updatedProduct.title,
+              'description': updatedProduct.description,
+              'price': updatedProduct.price,
+              'imageUrl': updatedProduct.imageUrl,
+            },
+          ),
+        );
+        _list[productIndex] = updatedProduct;
+        notifyListeners();
+      } catch (e) {
+        rethrow;
+      }
     }
   }
 
