@@ -143,9 +143,17 @@ class Products with ChangeNotifier {
     }
   }
 
-  void deleteProduct(String id) {
-    _list.removeWhere((product) => product.id == id);
-    notifyListeners();
+  Future<void> deleteProduct(String id) async {
+    final url = Uri.parse(
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/products/$id.json');
+        
+    try {
+      await http.delete(url);
+      _list.removeWhere((product) => product.id == id);
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Product findById(String productID) {
