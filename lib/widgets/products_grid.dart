@@ -16,19 +16,29 @@ class ProductsGrid extends StatefulWidget {
 
 class _ProductsGridState extends State<ProductsGrid> {
   var _init = true;
+  var _isLoading = false;
 
   @override
   void initState() {
     //   Future.delayed(Duration.zero).then((value) {
     //   Provider.of<Products>(context, listen: false).getProductsFromFirebase();
-    // });             
+    // });
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
     if (_init) {
-      Provider.of<Products>(context, listen: false).getProductsFromFirebase();
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<Products>(context, listen: false)
+          .getProductsFromFirebase()
+          .then((response) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
     }
     _init = false;
     super.didChangeDependencies();
@@ -39,25 +49,31 @@ class _ProductsGridState extends State<ProductsGrid> {
     final productsData = Provider.of<Products>(context);
     final products =
         widget.showOnlyFavorites ? productsData.favorites : productsData.list;
-    return products.isNotEmpty
-        ? GridView.builder(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(20),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 1,
-                childAspectRatio: 3 / 2,
-                mainAxisSpacing: 20,
-                crossAxisSpacing: 20),
-            itemCount: products.length,
-            itemBuilder: ((context, index) {
-              return ChangeNotifierProvider<Product>.value(
-                value: products[index],
-                child: const ProductItem(),
-              );
-            }),
+    return _isLoading
+        ? Center(
+            child: CircularProgressIndicator(),
           )
-        : Center(
-            child: Text("Mahsulotlar mavjud emas!"),
-          );
+        : products.isNotEmpty
+            ? GridView.builder(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(20),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    childAspectRatio: 3 / 2,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 20),
+                itemCount: products.length,
+                itemBuilder: ((context, index) {
+                  return ChangeNotifierProvider<Product>.value(
+                    value: products[index],
+                    child: const ProductItem(),
+                  );
+                }),
+              )
+            : const Center(
+                child: Text(
+                  "Mahsulotlar mavjud emas!",
+                ),
+              );
   }
 }
