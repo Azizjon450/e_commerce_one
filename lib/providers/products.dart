@@ -1,9 +1,11 @@
 import 'dart:convert';
+//import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/product.dart';
+import '../services/http_exeption.dart';
 
 class Products with ChangeNotifier {
   List<Product> _list = [
@@ -145,26 +147,22 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://fir-app-e73d5-default-rtdb.firebaseio.com/products/$id.json');
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/products/$id');
 
     try {
-
       var deletingProduct = _list.firstWhere((product) => product.id == id);
       final productIndex = _list.indexWhere((product) => product.id == id);
 
-      
       _list.removeWhere((product) => product.id == id);
       notifyListeners();
 
       final response = await http.delete(url);
 
-      if(response.statusCode >= 400){
+      if (response.statusCode >= 400) {
         _list.insert(productIndex, deletingProduct);
         notifyListeners();
-        throw Exception();
-        
+        throw HttpExeption('Kechirasiz, o\'chirishda xatolik!');
       }
-      print(response.statusCode);
     } catch (e) {
       rethrow;
     }
