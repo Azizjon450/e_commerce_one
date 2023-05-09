@@ -43,18 +43,7 @@ class cartScreen extends StatelessWidget {
                     ),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Provider.of<Orders>(context, listen: false).addToOrders(
-                        cart.items.values.toList(),
-                        cart.totalprice,
-                      );
-                      cart.clearItem();
-                    },
-                    child: const Text(
-                      "BUYURTMA QILISH",
-                    ),
-                  ),
+                  OrderButton(cart: cart),
                 ],
               ),
             ),
@@ -78,6 +67,31 @@ class cartScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class OrderButton extends StatelessWidget {
+  const OrderButton({
+    super.key,
+    required this.cart,
+  });
+
+  final Cart cart;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () async {
+        await Provider.of<Orders>(context, listen: false).addToOrders(
+          cart.items.values.toList(),
+          cart.totalprice,
+        );
+        cart.clearItem();
+      },
+      child: const Text(
+        "BUYURTMA QILISH",
       ),
     );
   }
