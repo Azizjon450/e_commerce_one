@@ -14,8 +14,9 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> addToOrders(List<CartItem> products, double totalPrice) async {
+  
     final url = Uri.parse(
-        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json');
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json');    
 
     try {
       final response = await http.post(

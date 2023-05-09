@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/cart.dart';
 import '../widgets/cart_list_item.dart';
 import '../providers/orders.dart';
+import '../screens/orders_screen.dart';
 
 class cartScreen extends StatelessWidget {
   const cartScreen({super.key});
@@ -72,7 +73,7 @@ class cartScreen extends StatelessWidget {
   }
 }
 
-class OrderButton extends StatelessWidget {
+class OrderButton extends StatefulWidget {
   const OrderButton({
     super.key,
     required this.cart,
@@ -81,18 +82,33 @@ class OrderButton extends StatelessWidget {
   final Cart cart;
 
   @override
+  State<OrderButton> createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+  @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () async {
+      onPressed: (widget.cart.items.isEmpty || _isLoading) ? null : () async {
+        setState(() {
+          _isLoading = true;
+        });
         await Provider.of<Orders>(context, listen: false).addToOrders(
-          cart.items.values.toList(),
-          cart.totalprice,
+          widget.cart.items.values.toList(),
+          widget.cart.totalprice,
         );
-        cart.clearItem();
+        setState(() {
+          _isLoading = false;
+        });
+        widget.cart.clearItem();
+        Navigator.of(context).pushReplacementNamed(OrdersScreen.routeName);
       },
-      child: const Text(
-        "BUYURTMA QILISH",
-      ),
+      child: _isLoading
+          ? const CircularProgressIndicator()
+          : const Text(
+              "BUYURTMA QILISH",
+            ),
     );
   }
 }
