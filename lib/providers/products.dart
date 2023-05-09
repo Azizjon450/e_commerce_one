@@ -58,7 +58,6 @@ class Products with ChangeNotifier {
 
     try {
       final response = await http.get(url);
-      print(jsonDecode(response.body));
       if (jsonDecode(response.body) != null) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         final List<Product> loadedProducts = [];
@@ -147,7 +146,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://fir-app-e73d5-default-rtdb.firebaseio.com/products/$id');
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/products/$id.json');
 
     try {
       var deletingProduct = _list.firstWhere((product) => product.id == id);
