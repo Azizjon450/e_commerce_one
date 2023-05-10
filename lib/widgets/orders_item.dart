@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class OrderItem extends StatefulWidget {
-  final double? totalPrice;
+  final double totalPrice;
   final DateTime date;
   final List<CartItem> products;
   const OrderItem({

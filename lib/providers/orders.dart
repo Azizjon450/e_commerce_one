@@ -19,7 +19,7 @@ class Orders with ChangeNotifier {
 
     try {
       final response = await http.get(url);
-      if (jsonDecode(response.body) == null) {
+      if (jsonDecode(response.body) != null) {
         return;
       }
       final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -47,7 +47,7 @@ class Orders with ChangeNotifier {
         },
       );
       _items = loadedOrders;
-      notifyListeners(); 
+      notifyListeners();
     } catch (e) {
       rethrow;
     }
@@ -62,7 +62,7 @@ class Orders with ChangeNotifier {
         url,
         body: jsonEncode(
           {
-            'totlaPrice': totalPrice,
+            'totalPrice': totalPrice,
             'date': DateTime.now().toIso8601String(),
             'products': products
                 .map(
@@ -70,8 +70,8 @@ class Orders with ChangeNotifier {
                     'id': product.id,
                     'title': product.title,
                     'quantity': product.quantity,
-                    'image': product.image,
                     'price': product.price,
+                    'image': product.image,
                   },
                 )
                 .toList(),
@@ -88,6 +88,7 @@ class Orders with ChangeNotifier {
         ),
       );
       notifyListeners();
+      print("salom");
     } catch (e) {
       rethrow;
     }
