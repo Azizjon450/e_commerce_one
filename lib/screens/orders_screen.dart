@@ -39,7 +39,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           return OrderItem(
             totalPrice: order.totalPrice,
             date: order.date,
-            products: order.products,
+            products: order.products, 
           );
         }),
       ),
