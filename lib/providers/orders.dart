@@ -13,10 +13,49 @@ class Orders with ChangeNotifier {
     return [..._items];
   }
 
-  Future<void> addToOrders(List<CartItem> products, double totalPrice) async {
-  
+  Future<void> getOrdersFromFirebase() async {
     final url = Uri.parse(
-        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json');    
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json');
+
+    try {
+      final response = await http.get(url);
+      if (jsonDecode(response.body) == null) {
+        return;
+      }
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      List<Order> loadedOrders = [];
+      data.forEach(
+        (orderid, order) {
+          loadedOrders.add(
+            Order(
+              id: orderid,
+              totalPrice: order['totalPrice'],
+              date: DateTime.parse(order['date']),
+              products: (order['products'] as List<dynamic>)
+                  .map(
+                    (product) => CartItem(
+                      id: product['id'],
+                      title: product['title'],
+                      quantity: product['quantity'],
+                      image: product['image'],
+                      price: product['price'],
+                    ),
+                  )
+                  .toList(),
+            ),
+          );
+        },
+      );
+      _items = loadedOrders;
+      notifyListeners(); 
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> addToOrders(List<CartItem> products, double totalPrice) async {
+    final url = Uri.parse(
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json');
 
     try {
       final response = await http.post(

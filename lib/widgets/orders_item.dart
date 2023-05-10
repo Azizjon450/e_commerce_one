@@ -5,16 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class OrderItem extends StatefulWidget {
+  final double? totalPrice;
+  final DateTime date;
+  final List<CartItem> products;
   const OrderItem({
     super.key,
     required this.totalPrice,
     required this.date,
     required this.products,
   });
-
-  final double totalPrice;
-  final DateTime date;
-  final List<CartItem> products;
 
   @override
   State<OrderItem> createState() => _OrderItemState();

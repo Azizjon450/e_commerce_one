@@ -5,10 +5,23 @@ import '../widgets/orders_item.dart';
 import '/widgets/app_drawer.dart';
 import '/providers/orders.dart';
 
-class OrdersScreen extends StatelessWidget {
+class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
 
   static const routeName = '/orders';
+
+  @override
+  State<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
+  @override
+  void initState() {
+    Future.delayed(Duration.zero).then((_) {
+      Provider.of<Orders>(context, listen: false).getOrdersFromFirebase();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
