@@ -15,65 +15,66 @@ class ProductsGrid extends StatefulWidget {
 }
 
 class _ProductsGridState extends State<ProductsGrid> {
-  var _init = true;
-  var _isLoading = false;
+  late Future _productsFuture;
+
+  Future _getProductsFuture() {
+    return Provider.of<Products>(context, listen: false)
+        .getProductsFromFirebase();
+  }
 
   @override
   void initState() {
-    //   Future.delayed(Duration.zero).then((value) {
-    //   Provider.of<Products>(context, listen: false).getProductsFromFirebase();
-    // });
+    _productsFuture = _getProductsFuture();
     super.initState();
   }
 
   @override
-  void didChangeDependencies() {
-    if (_init) {
-      setState(() {
-        _isLoading = true;
-      });
-      Provider.of<Products>(context, listen: false)
-          .getProductsFromFirebase()
-          .then((response) {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    }
-    _init = false;
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final productsData = Provider.of<Products>(context);
-    final products =
-        widget.showOnlyFavorites ? productsData.favorites : productsData.list;
-    return _isLoading
-        ? Center(
+    return FutureBuilder(
+      future: _productsFuture,
+      builder: (context, dataSnapshot) {
+        if (dataSnapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
             child: CircularProgressIndicator(),
-          )
-        : products.isNotEmpty
-            ? GridView.builder(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(20),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 1,
-                    childAspectRatio: 3 / 2,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20),
-                itemCount: products.length,
-                itemBuilder: ((context, index) {
-                  return ChangeNotifierProvider<Product>.value(
-                    value: products[index],
-                    child: const ProductItem(),
-                  );
-                }),
-              )
-            : const Center(
-                child: Text(
-                  "Mahsulotlar mavjud emas!",
-                ),
-              );
+          );
+        } else {
+          if (dataSnapshot.error == null) {
+            return Consumer<Products>(
+              builder: (ctx, products, child) {
+                final prodS = widget.showOnlyFavorites
+                    ? products.favorites
+                    : products.list;
+
+                return prodS.isNotEmpty
+                    ? GridView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.all(20),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 1,
+                                childAspectRatio: 3 / 2,
+                                mainAxisSpacing: 20,
+                                crossAxisSpacing: 20),
+                        itemCount: prodS.length,
+                        itemBuilder: ((context, index) {
+                          return ChangeNotifierProvider<Product>.value(
+                            value: prodS[index],
+                            child: const ProductItem(),
+                          );
+                        }),
+                      )
+                    : const Center(
+                        child: Text("Mahsulotlar mavjud emas!"),
+                      );
+              },
+            );
+          } else {
+            return const Center(
+              child: Text("Xataolik sodir bo'ldi."),
+            );
+          }
+        }
+      },
+    );
   }
 }

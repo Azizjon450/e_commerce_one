@@ -19,11 +19,11 @@ class Orders with ChangeNotifier {
 
     try {
       final response = await http.get(url);
-      if (jsonDecode(response.body) != null) {
-        return;
-      }
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       List<Order> loadedOrders = [];
+      if (jsonDecode(response.body) == null) {
+        return;
+      }
       data.forEach(
         (orderid, order) {
           loadedOrders.add(
