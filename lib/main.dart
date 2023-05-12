@@ -7,6 +7,7 @@ import './screens/home_screen.dart';
 import './screens/product_details_screen.dart';
 import './screens/edit_product_screen.dart';
 import './screens/manage_product_screen.dart';
+import './screens/auth_screen.dart';
 import '../screens/orders_screen.dart';
 import '../screens/cart_screen.dart';
 import '../providers/cart.dart';
@@ -39,15 +40,16 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: theme,
-          initialRoute: HomeScreen.routeName,
+          home: AuthScreen(),
           routes: {
+            
             HomeScreen.routeName: (context) => const HomeScreen(),
             ProductDetailsScreen.routeName: (context) =>
                 const ProductDetailsScreen(),
             cartScreen.routeName: (context) => const cartScreen(),
             OrdersScreen.routeName: (context) => const OrdersScreen(),
             ManageProductScreen.routeName: (context) => const ManageProductScreen(),
-            EditProductScreen.routeName: (context) => const EditProductScreen(),
+            EditProductScreen.routeName: (context) => const EditProductScreen(), 
           }),
     );
   }
