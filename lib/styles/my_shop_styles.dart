@@ -5,6 +5,7 @@ class MyShopStyle {
     fontFamily: 'Lato',
     //primaryColor: Colors.cyan,
     primarySwatch: Colors.cyan,
+    scaffoldBackgroundColor: Colors.white,
     colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
     //useMaterial3: true,
   );

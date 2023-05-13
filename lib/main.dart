@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
           theme: theme,
           home: AuthScreen(),
           routes: {
-            
+            AuthScreen.routName:(context) => const AuthScreen(),
             HomeScreen.routeName: (context) => const HomeScreen(),
             ProductDetailsScreen.routeName: (context) =>
                 const ProductDetailsScreen(),
