@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -18,22 +20,81 @@ class _AuthScreenState extends State<AuthScreen> {
   GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
   final _passwordController = TextEditingController();
+  var _isLoading = false;
   Map<String, String> _authData = {
     "email": '',
     "password": '',
   };
 
-  void _submit() {
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text("Xatolik"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+              child: const Text("Okey"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      if (_authMode == AuthMode.Login) {
-        //....login user
-      } else {
-        Provider.of<Auth>(context, listen: false).signUp(
-          _authData['email']!,
-          _authData['password']!,
-        );
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        if (_authMode == AuthMode.Login) {
+          //....login user
+          await Provider.of<Auth>(context).login(
+            _authData['email']!,
+            _authData['password']!,
+          );
+        } else {
+          await Provider.of<Auth>(context, listen: false).signUp(
+            _authData['email']!,
+            _authData['password']!,
+          );
+        }
+      } on HttpException catch (error) {
+        var errorMessage = 'Xatolik sodir bo\'ldi';
+        if (error.message.contains('EMAIL_EXISTS')) {
+          errorMessage = 'Bu email allaqachon ro\'yhatdan o\'tgan';
+        } else if (error.message.contains('EMAIL_NOT_FOUND')) {
+          errorMessage = 'Ushbu email topilmadi, yoki hisob o\'chirilgan.';
+        } else if (error.message.contains('INVALID_PASSWORD')) {
+          errorMessage = 'Parol noto\'g\'ri, iltimos qaytadan urinib ko\'ring';
+        } else if (error.message.contains('INVALID_EMAIL')) {
+          errorMessage = 'Email manzili noto\'g\'ri.';
+        } else if (error.message.contains('EMAIL_NOT_FOUND')) {
+          errorMessage = 'Email ro\'yxatdan o\'tmagan';
+        } else if (error.message.contains('WEAK_PASSWORD')) {
+          errorMessage =
+              'Parol 6 yoki undan ortiq belgidan iborat bo\'lishi kerak.';
+        } else if (error.message.contains('USER_NOT_FOUND')) {
+          errorMessage = 'Foydalanuvchi manzili mos kelmadi';
+        }
+        _showErrorDialog(errorMessage);
+        //print(error);
+      } catch (e) {
+        var errorMessage =
+            'Kechirasiz, xatolik yuz berdi. Qaytadan urinib ko\'ring.';
+        _showErrorDialog(errorMessage);    
       }
+      setState(
+        () {
+          _isLoading = false;
+        },
+      );
     }
   }
 
@@ -58,7 +119,6 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               //mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
@@ -121,20 +181,22 @@ class _AuthScreenState extends State<AuthScreen> {
                 const SizedBox(
                   height: 60,
                 ),
-                ElevatedButton(
-                  onPressed: _submit,
-                  child: Text(
-                    _authMode == AuthMode.Login
-                        ? "KIRISH"
-                        : "RO'YHATDAN O'TISH",
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    ),
-                  ),
-                ),
+                _isLoading
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: _submit,
+                        child: Text(
+                          _authMode == AuthMode.Login
+                              ? "KIRISH"
+                              : "RO'YHATDAN O'TISH",
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                            minimumSize: Size(double.infinity, 50)),
+                      ),
                 const SizedBox(
                   height: 40,
                 ),
