@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+import '../providers/auth.dart';
+
 enum AuthMode { Register, Login }
 
 class AuthScreen extends StatefulWidget {
@@ -14,6 +17,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
+  final _passwordController = TextEditingController();
   Map<String, String> _authData = {
     "email": '',
     "password": '',
@@ -22,6 +26,14 @@ class _AuthScreenState extends State<AuthScreen> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      if (_authMode == AuthMode.Login) {
+        //....login user
+      } else {
+        Provider.of<Auth>(context, listen: false).signUp(
+          _authData['email']!,
+          _authData['password']!,
+        );
+      }
     }
   }
 
@@ -58,7 +70,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   validator: (email) {
                     if (email == null || email.isEmpty) {
                       return "Iltimos emailni kiriting";
-                    } else if (email.contains('@')) {
+                    } else if (!email.contains('@')) {
                       return "Iltimos to'g'ri email kiriting";
                     }
                   },
@@ -73,13 +85,15 @@ class _AuthScreenState extends State<AuthScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Parol',
                   ),
+                  controller: _passwordController,
                   obscureText: true,
                   validator: (password) {
                     if (password == null || password.isEmpty) {
-                      return "Iltimos parolni kiriting";
+                      return "Iltimos parolni kiriting.";
                     } else if (password.length < 6) {
-                      return "Parol juda oson";
+                      return "Parol juda oson.";
                     }
+                    return null;
                   },
                   onSaved: (password) {
                     _authData['password'] = password!;
@@ -96,9 +110,10 @@ class _AuthScreenState extends State<AuthScreen> {
                             InputDecoration(labelText: "Parolni tasdiqlang"),
                         obscureText: true,
                         validator: (confirmedPassword) {
-                          if (_authData['password'] != confirmedPassword) {
+                          if (_passwordController.text != confirmedPassword) {
                             return "Parollar mos emas";
                           }
+                          return null;
                         },
                       )
                     ],
