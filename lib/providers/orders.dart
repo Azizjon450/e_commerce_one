@@ -8,14 +8,20 @@ import '../models/order.dart';
 
 class Orders with ChangeNotifier {
   List<Order> _items = [];
+  
+  String? _authToken;
 
   List<Order> get items {
     return [..._items];
   }
 
+  void setParameters(String token) {
+    _authToken = token;
+  }
+
   Future<void> getOrdersFromFirebase() async {
     final url = Uri.parse(
-        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json');
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json?auth=$_authToken');
 
     try {
       final response = await http.get(url);
@@ -55,7 +61,7 @@ class Orders with ChangeNotifier {
 
   Future<void> addToOrders(List<CartItem> products, double totalPrice) async {
     final url = Uri.parse(
-        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json');
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json?auth=$_authToken');
 
     try {
       final response = await http.post(
