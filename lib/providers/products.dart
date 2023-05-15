@@ -44,6 +44,12 @@ class Products with ChangeNotifier {
     // ),
   ];
 
+  String? _authToken;
+
+  void setParametrs(String authToken) {
+    _authToken = authToken;
+  }
+
   List<Product> get list {
     return [..._list];
   }
@@ -54,7 +60,7 @@ class Products with ChangeNotifier {
 
   Future<void> getProductsFromFirebase() async {
     final url = Uri.parse(
-        'https://fir-app-e73d5-default-rtdb.firebaseio.com/products.json');
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/products.json?auth=$_authToken');
 
     try {
       final response = await http.get(url);

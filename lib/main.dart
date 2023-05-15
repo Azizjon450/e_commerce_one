@@ -18,7 +18,6 @@ void main() {
   runApp(MyApp());
 }
 
-
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
@@ -30,8 +29,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<Auth>(
           create: (ctx) => Auth(),
         ),
-        ChangeNotifierProvider<Products>(
+        ChangeNotifierProxyProvider<Auth, Products>(
           create: (ctx) => Products(),
+          update: (ctx, auth, previousProduct) =>
+              Products()..setParametrs(auth.token!),
         ),
         ChangeNotifierProvider<Cart>(
           create: (ctx) => Cart(),
@@ -40,22 +41,28 @@ class MyApp extends StatelessWidget {
           create: (ctx) => Orders(),
         ),
       ],
-      child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
-          theme: theme,
-          home: AuthScreen(),
-          routes: {
-            AuthScreen.routName: (context) => const AuthScreen(),
-            HomeScreen.routeName: (context) => const HomeScreen(),
-            ProductDetailsScreen.routeName: (context) =>
-                const ProductDetailsScreen(),
-            cartScreen.routeName: (context) => const cartScreen(),
-            OrdersScreen.routeName: (context) => const OrdersScreen(),
-            ManageProductScreen.routeName: (context) =>
-                const ManageProductScreen(),
-            EditProductScreen.routeName: (context) => const EditProductScreen(),
-          }),
+      child: Consumer<Auth>(
+        builder: (ctx, authData, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            theme: theme,
+            home: authData.isAuth ? HomeScreen() : AuthScreen(),
+            routes: {
+              AuthScreen.routName: (context) => const AuthScreen(),
+              HomeScreen.routeName: (context) => const HomeScreen(),
+              ProductDetailsScreen.routeName: (context) =>
+                  const ProductDetailsScreen(),
+              cartScreen.routeName: (context) => const cartScreen(),
+              OrdersScreen.routeName: (context) => const OrdersScreen(),
+              ManageProductScreen.routeName: (context) =>
+                  const ManageProductScreen(),
+              EditProductScreen.routeName: (context) =>
+                  const EditProductScreen(),
+            },
+          );
+        },
+      ),
     );
   }
 }

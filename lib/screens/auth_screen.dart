@@ -55,7 +55,7 @@ class _AuthScreenState extends State<AuthScreen> {
       try {
         if (_authMode == AuthMode.Login) {
           //....login user
-          await Provider.of<Auth>(context).login(
+          await Provider.of<Auth>(context, listen: false).login(
             _authData['email']!,
             _authData['password']!,
           );
@@ -133,6 +133,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     } else if (!email.contains('@')) {
                       return "Iltimos to'g'ri email kiriting";
                     }
+                    return null;
                   },
                   onSaved: (email) {
                     _authData['email'] = email!;
