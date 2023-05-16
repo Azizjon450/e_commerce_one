@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,6 +9,7 @@ class Auth with ChangeNotifier {
   String? _token;
   DateTime? _expirDate;
   String? _userId;
+  Timer? _autoLogoutTimer;
 
   static const apiKey = 'AIzaSyD-1pUta039_feFIEJdUKRArt3tbTlc-WY';
 
@@ -15,8 +17,8 @@ class Auth with ChangeNotifier {
     return _token != null;
   }
 
-  String get userId {
-    return _userId!;
+  String? get userId {
+    return _userId;
   }
 
   String? get token {
@@ -55,6 +57,7 @@ class Auth with ChangeNotifier {
         ),
       );
       _userId = data['localId'];
+      _autoLogout();
       notifyListeners();
       print(jsonDecode(response.body));
     } catch (e) {
@@ -68,5 +71,25 @@ class Auth with ChangeNotifier {
 
   Future<void> login(String email, String password) async {
     return _authenticate(email, password, 'signInWithPassword');
+  }
+
+  void logout() {
+    _token = null;
+    _userId = null;
+    _expirDate = null;
+    if(_autoLogoutTimer != null) {
+      _autoLogoutTimer!.cancel();
+      _autoLogoutTimer = null;
+    }
+
+    notifyListeners();
+  }
+
+  void _autoLogout() {
+    if(_autoLogoutTimer != null) {
+      _autoLogoutTimer!.cancel();
+    }
+    final timeToExpiry = _expirDate!.difference(DateTime.now()).inSeconds;
+    _autoLogoutTimer = Timer(Duration(seconds: timeToExpiry), logout);
   }
 }

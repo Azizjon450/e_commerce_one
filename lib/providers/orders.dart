@@ -10,18 +10,20 @@ class Orders with ChangeNotifier {
   List<Order> _items = [];
   
   String? _authToken;
+  String? _userId; 
 
   List<Order> get items {
     return [..._items];
   }
 
-  void setParameters(String token) {
+  void setParameters(String? token, String? userId) {
     _authToken = token;
+    _userId = userId;
   }
 
   Future<void> getOrdersFromFirebase() async {
     final url = Uri.parse(
-        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json?auth=$_authToken');
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders/$_userId.json?auth=$_authToken');
 
     try {
       final response = await http.get(url);
@@ -61,7 +63,7 @@ class Orders with ChangeNotifier {
 
   Future<void> addToOrders(List<CartItem> products, double totalPrice) async {
     final url = Uri.parse(
-        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders.json?auth=$_authToken');
+        'https://fir-app-e73d5-default-rtdb.firebaseio.com/orders/$_userId.json?auth=$_authToken');
 
     try {
       final response = await http.post(
